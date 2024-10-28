@@ -90,7 +90,7 @@ export const fetchAllTodos = async (req, res) => {
     // fetching all todos
     const allTodos = await prisma.todo.findMany({});
     console.log(allTodos);
-    
+
     return res.json({
       status: 200,
       data: allTodos,
@@ -104,3 +104,39 @@ export const fetchAllTodos = async (req, res) => {
     });
   }
 };
+
+export const changeTodoState = async (req, res) => {
+  const todoId = req.params.id;
+  const { isCompleted } = req.body;
+
+  // Check if isCompleted is not provided
+  if (isCompleted === undefined) {
+    return res.json({
+      status: 400,
+      message: "Please provide the current state of todo, either completed or not completed",
+    });
+  }
+
+  try {
+    const updatedTodo = await prisma.todo.update({
+      where: {
+        id: Number(todoId),
+      },
+      data: {
+        isCompleted,
+      },
+    });
+    return res.json({
+      status: 200,
+      data: updatedTodo,
+      message: "Todo state has been changed successfully",
+    });
+  } catch (error) {
+    return res.json({
+      status: 500,
+      error: error.message,
+      message: "Error while updating todo state",
+    });
+  }
+};
+
